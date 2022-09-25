@@ -10,7 +10,6 @@ signal invinsible_start
 signal invinsible_end
 
 func start_invincibility(duration):
-	print("Start invincibility")
 	emit_signal("invinsible_start")
 	self.invincible = true
 	timer.start(duration)
@@ -23,7 +22,6 @@ func _on_Timer_timeout():
 	end_invincibility()
 
 func create_hit_effect():
-	print("Creating hit effect")
 	var effect = EnemyHitEffect.instance()
 	var world = get_tree().current_scene
 	world.add_child(effect)

@@ -32,8 +32,12 @@ func move():
 	move_and_slide(velocity)
 
 func _ready():
-	stats.connect("no_health", self, "queue_free")
+	stats.connect("no_health", self, "die")
 	animTree.active = true
+
+func die():
+	print("Dead")
+	queue_free()
 
 # State machine
 func _physics_process(delta):
@@ -53,6 +57,7 @@ func idle_state(delta):
 		state = ATTACK
 	elif Input.is_action_just_pressed("jump"):
 		state = ROLL
+		hurtBox.start_invincibility(0.5)
 	else:
 		var input_vector = get_input_vector()
 		if input_vector != Vector2.ZERO:
@@ -76,7 +81,6 @@ func attack_state(_delta):
 func roll_state(_delta):
 	velocity = roll_vector * ROLL_SPEED
 	animState.travel("Roll")
-	hurtBox.start_invincibility(0.5)
 	move()
 
 #Animation triggered functions
@@ -91,7 +95,7 @@ func roll_anim_finished():
 	hurtBox.end_invincibility()
 
 
-func _on_HurtBox_area_entered(area):
+func _on_HurtBox_area_entered(_area):
 	hurtBox.start_invincibility(0.5)
 	hurtBox.create_hit_effect()
 	stats.health -= 1
