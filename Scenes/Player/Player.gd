@@ -5,7 +5,7 @@ export var MAX_SPEED = 100
 export var ROLL_SPEED = 150
 export var FRICTION = 800
 
-onready var stats = get_node("Stats")
+var stats = PlayerStats
 enum {
 	IDLE,
 	ROLL,
@@ -14,11 +14,12 @@ enum {
 
 var state = IDLE
 var velocity : Vector2 = Vector2.ZERO
-var roll_vector = Vector2.RIGHT
+var roll_vector = Vector2.DOWN
 
 onready var animNode : AnimationPlayer = get_node("AnimationPlayer")
 onready var animTree : AnimationTree = get_node("AnimationTree")
 onready var animState : AnimationNodeStateMachinePlayback = animTree.get("parameters/playback")
+onready var hurtBox = get_node("HurtBox")
 
 func get_input_vector():
 	var input_vector : Vector2 = Vector2.ZERO
@@ -31,6 +32,7 @@ func move():
 	move_and_slide(velocity)
 
 func _ready():
+	stats.connect("no_health", self, "queue_free")
 	animTree.active = true
 
 # State machine
@@ -74,15 +76,22 @@ func attack_state(_delta):
 func roll_state(_delta):
 	velocity = roll_vector * ROLL_SPEED
 	animState.travel("Roll")
+	hurtBox.start_invincibility(0.5)
 	move()
 
 #Animation triggered functions
 func attack_anim_finished():
+	animState.travel("Idle")
 	state = IDLE
 
 func roll_anim_finished():
 	velocity = velocity * 0.6
 	animState.travel("Idle")
 	state = IDLE
+	hurtBox.end_invincibility()
 
 
+func _on_HurtBox_area_entered(area):
+	hurtBox.start_invincibility(0.5)
+	hurtBox.create_hit_effect()
+	stats.health -= 1

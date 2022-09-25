@@ -14,6 +14,10 @@ config/name="Practice"
 run/main_scene="res://World.tscn"
 config/icon="res://icon.png"
 
+[autoload]
+
+PlayerStats="*res://Scenes/Player/PlayerStats.tscn"
+
 [display]
 
 window/size/width=320

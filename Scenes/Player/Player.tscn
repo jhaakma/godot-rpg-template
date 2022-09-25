@@ -1,9 +1,9 @@
-[gd_scene load_steps=52 format=2]
+[gd_scene load_steps=53 format=2]
 
 [ext_resource path="res://Scenes/Player/Player.gd" type="Script" id=1]
 [ext_resource path="res://Resources/Player/Player.png" type="Texture" id=2]
 [ext_resource path="res://Scenes/Hitboxes/HitBox.tscn" type="PackedScene" id=3]
-[ext_resource path="res://Scenes/Properties/Stats.tscn" type="PackedScene" id=4]
+[ext_resource path="res://Scenes/Hitboxes/HurtBox.tscn" type="PackedScene" id=5]
 
 [sub_resource type="CapsuleShape2D" id=1]
 radius = 5.0
@@ -655,6 +655,10 @@ graph_offset = Vector2( -139, -63 )
 [sub_resource type="CapsuleShape2D" id=47]
 height = 12.0
 
+[sub_resource type="CapsuleShape2D" id=48]
+radius = 6.0
+height = 8.0
+
 [node name="Player" type="KinematicBody2D"]
 collision_layer = 2
 script = ExtResource( 1 )
@@ -692,10 +696,10 @@ anims/RunUp = SubResource( 4 )
 tree_root = SubResource( 21 )
 anim_player = NodePath("../AnimationPlayer")
 parameters/playback = SubResource( 22 )
-parameters/Attack/blend_position = Vector2( -0.252887, -0.116279 )
-parameters/Idle/blend_position = Vector2( 0.372979, 0.0609212 )
-parameters/Roll/blend_position = Vector2( 0, 0 )
-parameters/Run/blend_position = Vector2( -0.117783, 0.794948 )
+parameters/Attack/blend_position = Vector2( 0, 1 )
+parameters/Idle/blend_position = Vector2( 0, 1 )
+parameters/Roll/blend_position = Vector2( 0, 1 )
+parameters/Run/blend_position = Vector2( 0, 1 )
 
 [node name="HitboxPivot" type="Position2D" parent="."]
 position = Vector2( 0, -4 )
@@ -706,14 +710,19 @@ __meta__ = {
 [node name="HitboxSword" parent="HitboxPivot" instance=ExtResource( 3 )]
 position = Vector2( 15, 0 )
 collision_mask = 8
-damage = 5
 
 [node name="CollisionShape2D" parent="HitboxPivot/HitboxSword" index="0"]
 shape = SubResource( 47 )
 disabled = true
 
-[node name="Stats" parent="." instance=ExtResource( 4 )]
-max_health = 10
-weapon_damage = 2
+[node name="HurtBox" parent="." instance=ExtResource( 5 )]
+position = Vector2( 0, -8 )
+collision_layer = 4
+
+[node name="CollisionShape2D" parent="HurtBox" index="0"]
+shape = SubResource( 48 )
+
+[connection signal="area_entered" from="HurtBox" to="." method="_on_HurtBox_area_entered"]
 
 [editable path="HitboxPivot/HitboxSword"]
+[editable path="HurtBox"]
