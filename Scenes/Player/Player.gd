@@ -4,6 +4,9 @@ export var ACCELERATION = 300
 export var MAX_SPEED = 100
 export var ROLL_SPEED = 150
 export var FRICTION = 800
+export(float) var INVINCIBILITY_DURATION = 0.7
+
+const PlayerHurtSound = preload("res://Scenes/Player/PlayerHurtSound.tscn")
 
 var stats = PlayerStats
 enum {
@@ -16,10 +19,12 @@ var state = IDLE
 var velocity : Vector2 = Vector2.ZERO
 var roll_vector = Vector2.DOWN
 
-onready var animNode : AnimationPlayer = get_node("AnimationPlayer")
-onready var animTree : AnimationTree = get_node("AnimationTree")
+
+onready var animNode : AnimationPlayer = $AnimationPlayer
+onready var animTree : AnimationTree = $AnimationTree
+onready var hurtBox = $HurtBox
+onready var blinkAnimation = $BlinkAnimation
 onready var animState : AnimationNodeStateMachinePlayback = animTree.get("parameters/playback")
-onready var hurtBox = get_node("HurtBox")
 
 func get_input_vector():
 	var input_vector : Vector2 = Vector2.ZERO
@@ -29,7 +34,7 @@ func get_input_vector():
 	return input_vector
 
 func move():
-	move_and_slide(velocity)
+	velocity = move_and_slide(velocity)
 
 func _ready():
 	stats.connect("no_health", self, "die")
@@ -94,8 +99,14 @@ func roll_anim_finished():
 	state = IDLE
 	hurtBox.end_invincibility()
 
-
-func _on_HurtBox_area_entered(_area):
-	hurtBox.start_invincibility(0.5)
+func _on_HurtBox_area_entered(area):
+	hurtBox.start_invincibility(INVINCIBILITY_DURATION)
 	hurtBox.create_hit_effect()
-	stats.health -= 1
+	stats.health -= area.owner.stats.weapon_damage
+	blinkAnimation.play("Start")
+	var playerHurtSound = PlayerHurtSound.instance()
+	get_tree().current_scene.add_child(playerHurtSound)
+
+
+func _on_HurtBox_invinsible_end():
+	blinkAnimation.play("Stop")
